@@ -27,15 +27,15 @@ app = Flask(__name__)
 # Using api parameters
 @app.route('/')
 def mainsite():
-    message = "Please go to https://yossi-flask.herokuapp.com/predict_churn\n" + \
-              "and add parameters:\n" + \
-              "is_male\n" + \
-              "num_inters\n" + \
-              "late_on_payment\n" + \
-              "age\n" + \
-              "years_in_contract\n" + \
-              "OR use https://yossi-flask.herokuapp.com/predict_churn_bulk:\n" + \
-              "with json file (same parameters). "
+    message = "<html><p>Please go to https://yossi-flask.herokuapp.com/predict_churn</p>" + \
+              "<p>and add parameters:</p>" + \
+              "<p>is_male</p>" + \
+              "<p>num_inters</p>" + \
+              "<p>late_on_payment</p>" + \
+              "<p>age</p>" + \
+              "<p>years_in_contract</p>" + \
+              "<p>OR use https://yossi-flask.herokuapp.com/predict_churn_bulk:</p>" + \
+              "<p>with json file (same parameters). </p></html>"
     return message
 
 # http://127.0.0.1:5000/predict_churn?is_male=1&num_inters=0&late_on_payment=0&age=41&years_in_contract=3.240370349
