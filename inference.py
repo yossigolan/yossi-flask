@@ -38,7 +38,7 @@ def mainsite():
               "with json file (same parameters). "
     return message
 
-
+# http://127.0.0.1:5000/predict_churn?is_male=1&num_inters=0&late_on_payment=0&age=41&years_in_contract=3.240370349
 # Using api parameters
 @app.route('/predict_churn')
 def predict():
