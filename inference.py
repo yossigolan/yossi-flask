@@ -5,6 +5,7 @@ import pickle
 from flask import Flask, json
 from flask import request
 import os
+
 # Load model, test set and preditions files
 model_file_name = 'churn_model.pkl'
 x_test_file_name = 'X_test.csv'
@@ -20,8 +21,23 @@ if y_pred.any() == y_pred_new.astype('int').any():
 else:
     print('Error in prediction!')
 
-
 app = Flask(__name__)
+
+
+# Using api parameters
+@app.route('/')
+def mainsite():
+    message = "Please go to https://yossi-flask.herokuapp.com/predict_churn\n" + \
+              "and add parameters:\n" + \
+              "is_male\n" + \
+              "num_inters\n" + \
+              "late_on_payment\n" + \
+              "age\n" + \
+              "years_in_contract\n" + \
+              "OR use https://yossi-flask.herokuapp.com/predict_churn_bulk:\n" + \
+              "with json file (same parameters). "
+    return message
+
 
 # Using api parameters
 @app.route('/predict_churn')
@@ -32,7 +48,7 @@ def predict():
     late_on_payment = request.args.get('late_on_payment')
     age = request.args.get('age')
     years_in_contract = request.args.get('years_in_contract')
-    x_test_user = [[is_male, num_inters,late_on_payment,age,years_in_contract]]
+    x_test_user = [[is_male, num_inters, late_on_payment, age, years_in_contract]]
     # run model and return prediction
     y_pred = loaded_model.predict(x_test_user)
     return f"{y_pred}"
