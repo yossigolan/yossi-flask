@@ -6,22 +6,48 @@ from flask import Flask, json
 from flask import request
 import os
 
+# declare parameters
+
 # Load model, test set and preditions files
 model_file_name = 'churn_model.pkl'
 x_test_file_name = 'X_test.csv'
 y_pred_file_name = 'preds.csv'
 loaded_model = pickle.load(open(model_file_name, 'rb'))
-x_test_new = pd.read_csv(x_test_file_name)
-y_pred_new = np.loadtxt(y_pred_file_name)
+x_test = pd.read_csv(x_test_file_name)
+y_pred = np.loadtxt(y_pred_file_name)
 
-# Test model predictions
-y_pred = loaded_model.predict(x_test_new)
-if y_pred.any() == y_pred_new.astype('int').any():
-    print('Both predictions are equal!')
-else:
-    print('Error in prediction!')
+
+def validate_prediction(y_prediction, x_test_df):
+    """
+    Validate model predictions
+    :param y_prediction: current model predictions
+    :param x_test_df: x_test to predict on
+    :return: Nothing. Print whether predictions are valid
+    """
+    y_pred_new = loaded_model.predict(x_test_df)
+    if y_prediction.any() == y_pred_new.astype('int').any():
+        print('Both predictions are equal! Validation OK!')
+    else:
+        print('Error in prediction! Validation Error!')
+
 
 app = Flask(__name__)
+
+validate_prediction(y_pred, x_test)
+
+
+def get_parameters(df):
+    """
+    Get parameters from user
+    :param df: test data set
+    :return: list of parameters values from user
+    """
+    params_list = []
+    returned_list = []
+    for i, item in enumerate(df.columns):
+        params_list.append(request.args.get(item))
+    returned_list.append(params_list)
+    return returned_list
 
 
 # Using api parameters
@@ -38,20 +64,15 @@ def mainsite():
               "<p>with json file (same parameters). </p></html>"
     return message
 
-# http://127.0.0.1:5000/predict_churn?is_male=1&num_inters=0&late_on_payment=0&age=41&years_in_contract=3.240370349
+
 # Using api parameters
 @app.route('/predict_churn')
 def predict():
     # get parameters
-    is_male = request.args.get('is_male')
-    num_inters = request.args.get('num_inters')
-    late_on_payment = request.args.get('late_on_payment')
-    age = request.args.get('age')
-    years_in_contract = request.args.get('years_in_contract')
-    x_test_user = [[is_male, num_inters, late_on_payment, age, years_in_contract]]
+    x_test_user = get_parameters(x_test)
     # run model and return prediction
-    y_pred = loaded_model.predict(x_test_user)
-    return f"{y_pred}"
+    y_predict = loaded_model.predict(x_test_user)
+    return f"{y_predict}"
 
 
 # (BONUS) Using json files
@@ -60,10 +81,10 @@ def predict_bulk():
     # Read json file
     x_test_user = json.loads(request.get_json())
     # run model
-    y_pred = loaded_model.predict(pd.DataFrame(x_test_user))
+    y_predict = loaded_model.predict(pd.DataFrame(x_test_user))
     # Create predictions json file and return the json file
     json_return = []
-    for i, pred in enumerate(y_pred):
+    for i, pred in enumerate(y_predict):
         result_str = "result-" + str(i)
         json_return.append({result_str: float(pred)})
     json_file = flask.jsonify(json_return)
